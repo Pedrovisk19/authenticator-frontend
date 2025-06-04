@@ -9,9 +9,9 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ToastContainer, toast } from 'react-toastify';
-import axios from 'axios'
+
 import Link from 'next/link'
-import './login.css'
+import './signup.css'
 import { useState } from 'react'
 
 const schema = z.object({
@@ -21,7 +21,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export default function SignInPage() {
+export default function SignUpPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -33,28 +33,17 @@ export default function SignInPage() {
   const onSubmit = async (data: FormData) => {
     // Simule login
     console.log('Login data:', data)
-
-    try {
-
-      const users = axios({
-        method: "post",
-        url: "http://localhost:3002/users",
-        data: {
-          name: data.email,
-          password: data.password
-        }
-      }).then((response) => {
-        toast("redirecting...")
-
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 5000);
-      });
-
-    } catch (error) {
-      console.log('Error fetching users:', error);
-    }
-
+    toast('Redirecionando para dashboard', {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      // transition: 'flip'
+    });    // router.push('/') 
   }
 
   const data = {
@@ -63,14 +52,14 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="form-login flex justify-center items-center h-screen">
+    <div className="form-signup flex column justify-center items-center h-screen">
       <Code size="lg" variant="solid" colorPalette="purple">Authenticator App</Code>
       <Input placeholder="Insira um email" variant="subtle" />
       <Input placeholder="Insira uma senha" variant="subtle" />
       <Button loading={loading} onClick={() => onSubmit(data)}>
-        Entrar
+        Criar usuário
       </Button>
-      <span>Não tem usuário? <Link href="/signup" ><span style={{ color: '#2D82B7' }}>clique aqui.</span></Link></span>
+      <span>Já possui um usuário? <Link href="/" ><span style={{ color: '#2D82B7' }}>clique aqui.</span></Link></span>
       <ToastContainer />
 
     </div>

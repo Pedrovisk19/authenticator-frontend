@@ -1,0 +1,7 @@
+.form-login{
+    padding: 1rem;
+    width: 24rem;
+    flex-direction: column;
+    gap: 2rem;
+    margin: auto;
+}
