@@ -37,7 +37,7 @@ export default function SignInPage() {
     try {
 
       const users = axios({
-        method: "post",
+        method: "get",
         url: "http://localhost:3002/users",
         data: {
           name: data.email,
@@ -64,7 +64,7 @@ export default function SignInPage() {
 
   return (
     <div className="form-login flex justify-center items-center h-screen">
-      <Code size="lg" variant="solid" colorPalette="purple">Authenticator App</Code>
+      <Code size="lg" variant="solid" colorPalette="purple">Authorization App</Code>
       <Input placeholder="Insira um email" variant="subtle" />
       <Input placeholder="Insira uma senha" variant="subtle" />
       <Button loading={loading} onClick={() => onSubmit(data)}>
