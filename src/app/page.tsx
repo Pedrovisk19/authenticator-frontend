@@ -36,20 +36,23 @@ export default function SignInPage() {
 
     try {
 
-      const users = axios({
-        method: "get",
-        url: "http://localhost:3002/users",
+      const response = await axios({
+        method: "post",
+        url: "http://localhost:3002/auth/login",
         data: {
-          name: data.email,
+          email: data.email,
           password: data.password
         }
-      }).then((response) => {
-        toast("redirecting...")
-
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 5000);
       });
+
+      toast("redirecting...");
+
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 5000);
+
+      localStorage.setItem('token', response.data.token);
+
 
     } catch (error) {
       console.log('Error fetching users:', error);
