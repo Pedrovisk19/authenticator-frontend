@@ -2,29 +2,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // app/auth/signin/page.tsx
 'use client'
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose
-} from "@/components/ui/dialog"
 
 import { Button, Code, Table } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import axios from 'axios'
+import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { LuTrash2, LuUserCog } from 'react-icons/lu'
 import { ToastContainer, toast } from 'react-toastify'
 import { z } from 'zod'
-import './dash.css'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import { LuTrash2, LuUserCog } from 'react-icons/lu'
 import { DeleteUserModal, UserModel } from "../components/ConfirmDelete"
-// import './signup.css'
+import CreateUser from '../components/createUser'
+import './dash.css'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -36,12 +27,17 @@ type Item = UserModel;
 
 export default function SignUpPage() {
 
+  const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
   const [items, setItems] = useState<Item[]>([]);
 
-  useEffect(() => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null)
+  const [isCreatingUser, setIsCreatingUser] = useState(false)
+
+  const atualizaTableUsers = () => {
     axios({
       method: "get",
       url: "http://localhost:3002/users",
@@ -60,14 +56,19 @@ export default function SignUpPage() {
         theme: "dark",
       });
     });
-  }, []);
+  };
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null)
+  useEffect(() => {
+    atualizaTableUsers()
+  }, []);
 
   const openDeleteModal = (item: Item) => {
     setSelectedItem(item)
     setIsOpen(true)
+  }
+
+  const closeCreateModal = () => {
+    setIsCreatingUser(false)
   }
 
   const closeDeleteModal = () => {
@@ -80,10 +81,22 @@ export default function SignUpPage() {
     }
   }
 
+  const logout = () => {
+
+    Cookies.remove('token')
+    router.push('/')
+  }
+
+  const createUser = () => {
+    setIsCreatingUser(true);
+  }
+
   return (
     <div className="logout flex column justify-center items-center h-screen">
       <Code size="lg" variant="solid" colorPalette="purple">Dashboard ()</Code>
-
+      <Button onClick={createUser}>
+        criar usuário
+      </Button>
       <div className='w-1/2'>
         <Table.Root size="lg" variant="outline" rounded="md">
           <Table.Header>
@@ -110,6 +123,17 @@ export default function SignUpPage() {
         <ToastContainer />
       </div>
 
+      <Button type="submit" onClick={logout}>
+        Logout
+      </Button>
+
+      {isCreatingUser && (
+        <CreateUser
+          isOpenModal={isCreatingUser}
+          onClose={closeCreateModal} 
+          atualizaTableUsers={atualizaTableUsers}/>
+      )
+      }
 
       {selectedItem && (
         <DeleteUserModal

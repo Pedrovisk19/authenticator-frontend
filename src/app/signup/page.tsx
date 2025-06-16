@@ -37,7 +37,7 @@ export default function SignUpPage() {
     try {
       await axios.post('http://localhost:3002/users/create', data)
 
-      toast.success('Redirecionando para dashboard...', {
+      toast.success('Redirecionando para login...', {
         position: 'top-right',
         autoClose: 3000,
         theme: 'dark',

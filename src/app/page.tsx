@@ -1,6 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// app/auth/signin/page.tsx
 'use client'
 
 import { Button, Code, Input, Text } from '@chakra-ui/react'
@@ -8,11 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify'
 import axios from 'axios'
 import Link from 'next/link'
 import './login.css'
 import { useState } from 'react'
+import Cookies from 'js-cookie'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -22,60 +20,75 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function SignInPage() {
-
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    mode: 'onTouched',
   })
   const [loading, setLoading] = useState(false)
 
   const router = useRouter()
 
   const onSubmit = async (data: FormData) => {
-    // Simule login
-    console.log('Login data:', data)
-
+    setLoading(true)
     try {
+      const response = await axios.post('http://localhost:3002/auth/login', {
+        email: data.email,
+        password: data.password
+      })
 
-      const response = await axios({
-        method: "post",
-        url: "http://localhost:3002/auth/login",
-        data: {
-          email: data.email,
-          password: data.password
-        }
-      });
+      toast.success('Bem vindo !', {
+        position: 'top-right',
+        autoClose: 3000,
+        theme: 'light',
+      })
 
-      toast("redirecting...");
+      localStorage.setItem('token', response.data.token)
+      Cookies.set('token', response.data.token, { expires: 1 })
 
       setTimeout(() => {
-        router.push('/dashboard');
-      }, 5000);
-
-      localStorage.setItem('token', response.data.token);
-
-
+        router.push('/dashboard')
+      }, 2000)
     } catch (error) {
-      console.log('Error fetching users:', error);
+      console.error('Erro no login:', error)
+      toast.error('Erro ao fazer login')
+    } finally {
+      setLoading(false)
     }
-
   }
 
-  const data = {
-    email: 'pedro@email.com',
-    password: '12345'
+  const onError = () => {
+    toast.error('Insira um email e senha válida para logar!')
   }
 
   return (
-    <div className="form-login flex justify-center items-center h-screen">
+    <form onSubmit={handleSubmit(onSubmit, onError)} className="form-login flex flex-col gap-4 justify-center items-center h-screen">
       <Code size="lg" variant="solid" colorPalette="purple">Authorization App</Code>
-      <Input placeholder="Insira um email" variant="subtle" />
-      <Input placeholder="Insira uma senha" variant="subtle" />
-      <Button loading={loading} onClick={() => onSubmit(data)}>
+
+      <Input
+        placeholder="Insira um email"
+        variant="subtle"
+        {...register('email')}
+      />
+
+      <Input
+        type="password"
+        placeholder="Insira uma senha"
+        variant="subtle"
+        {...register('password')}
+      />
+
+      <Button type="submit" >
         Entrar
       </Button>
-      <span>Não tem usuário? <Link href="/signup" ><span style={{ color: '#2D82B7' }}>clique aqui.</span></Link></span>
-      <ToastContainer />
 
-    </div>
+      <span>
+        Não tem usuário?{' '}
+        <Link href="/signup">
+          <span style={{ color: '#2D82B7' }}>clique aqui.</span>
+        </Link>
+      </span>
+
+      <ToastContainer />
+    </form>
   )
 }
