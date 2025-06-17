@@ -99,4 +99,4 @@ Este projeto está sob a licença MIT.
 
 ---
 
-Desenvolvido com ❤️ por [Pedro Henrique Gonçalves de Souza]
+Desenvolvido por [Pedro Henrique Gonçalves de Souza]

@@ -40,7 +40,7 @@ export default function SignInPage() {
         position: 'top-right',
         autoClose: 3000,
         theme: 'light',
-      })
+      });
 
       localStorage.setItem('token', response.data.token)
       Cookies.set('token', response.data.token, { expires: 1 })
@@ -84,6 +84,12 @@ export default function SignInPage() {
       <span>
         Não tem usuário?{' '}
         <Link href="/signup">
+          <span style={{ color: '#2D82B7' }}>clique aqui.</span>
+        </Link>
+      </span>
+      <span>
+        Esqueceu sua senha?{' '}
+        <Link href="/reset-password">
           <span style={{ color: '#2D82B7' }}>clique aqui.</span>
         </Link>
       </span>
