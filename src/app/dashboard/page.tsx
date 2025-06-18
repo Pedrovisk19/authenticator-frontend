@@ -16,6 +16,7 @@ import { z } from 'zod'
 import { DeleteUserModal, UserModel } from "../components/ConfirmDelete"
 import CreateUser from '../components/createUser'
 import './dash.css'
+import UserPermissionsPage from '../user-permissions/page'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -91,6 +92,11 @@ export default function SignUpPage() {
     setIsCreatingUser(true);
   }
 
+  const openEditConfigModal = (id: number) => {
+    router.push(`/user-permissions?id=${encodeURIComponent(id)}`);
+  }
+
+
   return (
     <div className="logout flex column justify-center items-center h-screen">
       <Code size="lg" variant="solid" colorPalette="purple">Dashboard ()</Code>
@@ -112,8 +118,9 @@ export default function SignUpPage() {
               <Table.Row key={item.id}>
                 <Table.Cell>{item.name}</Table.Cell>
                 <Table.Cell>{item.email}</Table.Cell>
-                <Table.Cell className='cursor-pointer text-center'><LuUserCog color="#7678ed" /></Table.Cell>
-                <Table.Cell className='cursor-pointer' onClick={() => openDeleteModal(item)}>
+                <Table.Cell className='cursor-pointer text-center' onClick={() => openEditConfigModal(item.id)}>
+                  <LuUserCog color="#7678ed" />
+                </Table.Cell>                <Table.Cell className='cursor-pointer' onClick={() => openDeleteModal(item)}>
                   <LuTrash2 color="#ff4d6d" />
                 </Table.Cell>
               </Table.Row>
@@ -130,8 +137,8 @@ export default function SignUpPage() {
       {isCreatingUser && (
         <CreateUser
           isOpenModal={isCreatingUser}
-          onClose={closeCreateModal} 
-          atualizaTableUsers={atualizaTableUsers}/>
+          onClose={closeCreateModal}
+          atualizaTableUsers={atualizaTableUsers} />
       )
       }
 
