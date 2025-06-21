@@ -14,6 +14,7 @@ import axios from 'axios'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import './reset-password.css'
+import api from '@/axios-config'
 
 const schema = z.object({
   password: z.string()
@@ -43,7 +44,7 @@ export default function NewPasswordResetPage() {
   const router = useRouter();
 
   const verifyToken = async () => {
-    await axios.get('http://localhost:3002/email/verify-token');
+    await api.get('email/verify-token');
   };
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function NewPasswordResetPage() {
     try {
       const token = searchParams.get('token_pass');
 
-      await axios.post('http://localhost:3002/auth/update-password', {
+      await api.post('auth/update-password', {
         password: data.passwordConfirmation,
         token: token
       });

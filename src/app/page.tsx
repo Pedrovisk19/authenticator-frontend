@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { ToastContainer, toast } from 'react-toastify'
-import axios from 'axios'
+import api from '@/axios-config';
 import Link from 'next/link'
 import './login.css'
 import { useState } from 'react'
 import Cookies from 'js-cookie'
+import { jwtDecode } from 'jwt-decode';
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -31,9 +32,11 @@ export default function SignInPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     try {
-      const response = await axios.post('http://localhost:3002/auth/login', {
+      const response = await api.post("/auth/login", {
         email: data.email,
         password: data.password
+      }).finally(() => {
+
       })
 
       toast.success('Bem vindo !', {
@@ -43,8 +46,15 @@ export default function SignInPage() {
       });
 
       localStorage.setItem('token', response.data.token)
-      Cookies.set('token', response.data.token, { expires: 1 })
+      Cookies.set('token', response.data.token, { expires: 1 / 24 });
 
+      const decoded = jwtDecode<{ allowEdit: boolean; allowView: boolean }>(response.data.token);
+
+      // Salva as permissões no localStorage para uso no app
+      localStorage.setItem('permissions', JSON.stringify({
+        allowEdit: decoded.allowEdit,
+        allowView: decoded.allowView,
+      }));
       setTimeout(() => {
         router.push('/dashboard')
       }, 2000)
@@ -82,15 +92,13 @@ export default function SignInPage() {
       </Button>
 
       <span>
-        Não tem usuário?{' '}
+
         <Link href="/signup">
-          <span style={{ color: '#2D82B7' }}>clique aqui.</span>
+          <span style={{ color: '#2D82B7' }}>Novo Usuário</span>
         </Link>
-      </span>
-      <span>
-        Esqueceu sua senha?{' '}
+        {' '} | {' '}
         <Link href="/reset-password">
-          <span style={{ color: '#2D82B7' }}>clique aqui.</span>
+          <span style={{ color: '#2D82B7' }}>Esqueci minha senha</span>
         </Link>
       </span>
 

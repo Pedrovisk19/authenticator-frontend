@@ -1,4 +1,3 @@
-// middleware.ts
 import { NextResponse } from 'next/server'
 import type { MiddlewareConfig, NextRequest } from 'next/server'
 
@@ -6,21 +5,21 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value
   const path = request.nextUrl.pathname
 
-  const publicRoutes = ['/', '/signup']
-  const isPublicRoute = publicRoutes.includes(path)
-  const isDashboardRoute = path.startsWith('/dashboard')
+  const privatePrefixes = ['/dashboard', '/admin', '/conta']; // 🔐 pastas protegidas
+  const isPrivateRoute = privatePrefixes.some(prefix => path.startsWith(prefix));
+  const isAuthRoute = ['/', '/signup', '/reset-password', 'new-password-reset'].includes(path); // rotas públicas
 
-  // 🔐 Bloqueia acesso à dashboard se não estiver autenticado
-  if (!token && isDashboardRoute) {
-    return NextResponse.redirect(new URL('/', request.url))
+  // 🔒 Bloqueia acesso às privadas sem token
+  if (!token && isPrivateRoute) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 🔁 Redireciona para /dashboard se usuário autenticado acessar rota pública
-  if (token && isPublicRoute) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  // 🔁 Se logado, não deixa acessar rotas públicas como login ou signup
+  if (token && isAuthRoute) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config: MiddlewareConfig = {

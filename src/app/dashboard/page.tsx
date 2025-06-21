@@ -12,11 +12,14 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { LuTrash2, LuUserCog } from 'react-icons/lu'
 import { ToastContainer, toast } from 'react-toastify'
-import { z } from 'zod'
+import { number, z } from 'zod'
 import { DeleteUserModal, UserModel } from "../components/ConfirmDelete"
 import CreateUser from '../components/createUser'
+import UserPermissions from '../components/UserPermissions'
 import './dash.css'
-import UserPermissionsPage from '../user-permissions/page'
+import { Cog, UserCog } from 'lucide-react'
+import EditUserModal from '../components/EditUserModal'
+import api from '@/axios-config'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -34,9 +37,14 @@ export default function SignUpPage() {
   })
   const [items, setItems] = useState<Item[]>([]);
 
+  type UserPermissionsType = { allowEdit: boolean, allowView: boolean } | null;
+  const [isUserPermissions, setIsUserPermissions] = useState<UserPermissionsType>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
   const [isCreatingUser, setIsCreatingUser] = useState(false)
+  const [isPermissionUser, setIsPermissionUser] = useState(false)
+  const [isEditingUser, setIsEditingUser] = useState(false)
+  const [user, setUser] = useState(Number)
 
   const atualizaTableUsers = () => {
     axios({
@@ -68,6 +76,9 @@ export default function SignUpPage() {
     setIsOpen(true)
   }
 
+  const closeEditPermissionsModal = () => {
+    setIsPermissionUser(false);
+  }
   const closeCreateModal = () => {
     setIsCreatingUser(false)
   }
@@ -83,7 +94,7 @@ export default function SignUpPage() {
   }
 
   const logout = () => {
-
+    localStorage.removeItem('token');
     Cookies.remove('token')
     router.push('/')
   }
@@ -92,8 +103,34 @@ export default function SignUpPage() {
     setIsCreatingUser(true);
   }
 
-  const openEditConfigModal = (id: number) => {
-    router.push(`/user-permissions?id=${encodeURIComponent(id)}`);
+  const showPermissions = (userId: number) => {
+    setUser(userId);
+    setIsPermissionUser(true);
+  }
+
+
+  const editProfile = async (userId: number) => {
+    const permissions = JSON.parse(localStorage.getItem('permissions') || '{}');
+
+    if (!permissions?.allowEdit) {
+      toast.dismiss();
+      toast.error('Você não tem permissão para acessar esta tela', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
+      return;
+    }
+
+    setUser(userId);
+    setIsEditingUser(true);
+
   }
 
 
@@ -111,6 +148,7 @@ export default function SignUpPage() {
               <Table.ColumnHeader>Email</Table.ColumnHeader>
               <Table.ColumnHeader>Editar</Table.ColumnHeader>
               <Table.ColumnHeader>Excluir</Table.ColumnHeader>
+              <Table.ColumnHeader>Permissões</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -118,21 +156,32 @@ export default function SignUpPage() {
               <Table.Row key={item.id}>
                 <Table.Cell>{item.name}</Table.Cell>
                 <Table.Cell>{item.email}</Table.Cell>
-                <Table.Cell className='cursor-pointer text-center' onClick={() => openEditConfigModal(item.id)}>
+                <Table.Cell className='cursor-pointer text-center' onClick={() => editProfile(item.id)}>
                   <LuUserCog color="#7678ed" />
-                </Table.Cell>                <Table.Cell className='cursor-pointer' onClick={() => openDeleteModal(item)}>
+                </Table.Cell>
+                <Table.Cell className='cursor-pointer' onClick={() => openDeleteModal(item)}>
                   <LuTrash2 color="#ff4d6d" />
+                </Table.Cell>
+                <Table.Cell className='cursor-pointer' onClick={() => showPermissions(item.id)}>
+                  <UserCog />
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table.Root>
-        <ToastContainer />
       </div>
 
       <Button type="submit" onClick={logout}>
         Logout
       </Button>
+
+      {isPermissionUser && (
+        <UserPermissions
+          isOpenModal={isPermissionUser}
+          userId={user}
+          onClose={closeEditPermissionsModal}
+        />
+      )}
 
       {isCreatingUser && (
         <CreateUser
@@ -150,7 +199,17 @@ export default function SignUpPage() {
           onDeleted={handleUserDeleted}
         />
       )}
-      <ToastContainer />
+
+
+      {isEditingUser && (
+        <EditUserModal
+          isOpenModal={isEditingUser}
+          userId={user}
+          onClose={() => setIsEditingUser(false)}
+          atualizaTableUsers={atualizaTableUsers}
+        />
+      )}
+      {/* <ToastContainer /> */}
 
 
     </div>

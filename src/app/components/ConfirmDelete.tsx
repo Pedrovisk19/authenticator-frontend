@@ -1,19 +1,20 @@
 'use client'
 
+import api from "@/axios-config"
+import { usePermissions } from "@/contexts/PermissionsContext"
 import {
   Button,
-  CloseButton,
   Dialog,
-  Portal,
+  Portal
 } from "@chakra-ui/react"
 import { toast } from "react-toastify"
 
 
 interface DeleteUserModalProps {
-    user: UserModel
-    isOpen: boolean
-    onClose: () => void
-    onDeleted: () => void
+  user: UserModel
+  isOpen: boolean
+  onClose: () => void
+  onDeleted: () => void
 }
 
 export interface UserModel {
@@ -24,29 +25,27 @@ export interface UserModel {
 
 export function DeleteUserModal({ user, isOpen, onClose, onDeleted }: DeleteUserModalProps) {
 
+  const permissions = usePermissions();
   const onConfirm = async () => {
     try {
-      await fetch(`http://localhost:3002/users/delete/${user.id}`, {
-        method: "DELETE"
-      })
+      await api.delete(`users/delete/${user.id}`);
 
       toast.success("Colaborador excluído com sucesso!", {
         position: "top-right",
         autoClose: 3000,
         theme: "dark",
-      })
+      });
 
-      onDeleted()
-      onClose()
-    } catch (error) {
-      console.error("Erro ao excluir:", error)
-      toast.error("Erro ao excluir colaborador", {
+      onDeleted();
+      onClose();
+    } catch (error: any) {
+      toast.error(error.message, {
         position: "top-right",
         autoClose: 5000,
         theme: "dark",
-      })
+      });
     }
-  }
+  };
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()} placement="center">

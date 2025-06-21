@@ -14,6 +14,7 @@ import axios from 'axios'
 import Link from 'next/link'
 import { useState } from 'react'
 import './reset-password.css'
+import api from '@/axios-config'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -33,7 +34,7 @@ export default function ResetPasswordPage() {
   const resetPassword = async (data: FormData) => {
     setLoading(true)
     try {
-      await axios.post('http://localhost:3002/email/send-reset', {
+      await api.post('email/send-reset', {
         to: data.email,
         resetLink: `http://localhost:3000/new-password-reset`,
       });

@@ -26,12 +26,13 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>
-interface CreateUserModalProps {
+interface EditUserModalProps {
     isOpenModal: boolean
     onClose: () => void
     atualizaTableUsers: () => void
+    userId: number
 }
-export default function CreateUsersPage({ onClose, isOpenModal, atualizaTableUsers }: CreateUserModalProps) {
+export default function EditUserModal({ onClose, isOpenModal,atualizaTableUsers,userId }: EditUserModalProps) {
 
     const router = useRouter();
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
@@ -40,7 +41,7 @@ export default function CreateUsersPage({ onClose, isOpenModal, atualizaTableUse
 
     const createUser = async (data: FormData) => {
         try {
-            await api.post('/users/create', data)
+            await api.post('users/edit', data)
 
             toast.success('usuário criado com sucesso', {
                 position: 'top-right',
@@ -50,16 +51,25 @@ export default function CreateUsersPage({ onClose, isOpenModal, atualizaTableUse
 
             atualizaTableUsers()
             onClose()
-        } catch (error: any) {
-            let errorMessage = error?.message;
-            toast.error(`${errorMessage}`, {
-                position: 'top-right',
-                autoClose: 3000,
-                theme: 'dark',
-            })
-        }
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                console.log(error.response.data.message)
+                toast.error(`${error.response.data.message}`, {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    theme: 'dark',
+                })
+            } else {
+                console.log(error)
+                toast.error('Ocorreu um erro ao editar o usuário.', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    theme: 'dark',
+                })
+            }
+        } 
     }
-
+    
     return (
         <Dialog.Root open={isOpenModal} onOpenChange={(open) => !open && onClose()} placement="center">
             <Portal>
@@ -67,7 +77,7 @@ export default function CreateUsersPage({ onClose, isOpenModal, atualizaTableUse
                 <Dialog.Positioner>
                     <Dialog.Content>
                         <Dialog.Header>
-                            <Dialog.Title>Criação de Usuário</Dialog.Title>
+                            <Dialog.Title>Edição de Usuário</Dialog.Title>
                         </Dialog.Header>
                         <Dialog.Body className='flex flex-col gap-4'>
                             <Input placeholder="Nome" {...register('name')} variant="subtle" />
@@ -79,7 +89,7 @@ export default function CreateUsersPage({ onClose, isOpenModal, atualizaTableUse
                                 Cancelar
                             </Button>
                             <Button bgColor="green" color={"white"} ml={3} onClick={handleSubmit(createUser)}>
-                                Criar
+                                Editar
                             </Button>
                         </Dialog.Footer>
                     </Dialog.Content>

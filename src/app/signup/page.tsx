@@ -14,6 +14,7 @@ import Link from 'next/link'
 import './signup.css'
 import { useState } from 'react'
 import axios from 'axios'
+import api from '@/axios-config'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -35,7 +36,7 @@ export default function SignUpPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     try {
-      await axios.post('http://localhost:3002/users/create', data)
+      await api.post('users/create', data)
 
       toast.success('Redirecionando para login...', {
         position: 'top-right',
