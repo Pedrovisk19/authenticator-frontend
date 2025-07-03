@@ -3,23 +3,20 @@
 // app/auth/signin/page.tsx
 'use client'
 
-import { Button, Code, Table } from '@chakra-ui/react'
+import { Code, Table } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import Cookies from 'js-cookie'
+import { UserCog } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { LuTrash2, LuUserCog } from 'react-icons/lu'
 import { ToastContainer, toast } from 'react-toastify'
-import { number, z } from 'zod'
-import { DeleteUserModal, UserModel } from "../components/ConfirmDelete"
-import CreateUser from '../components/createUser'
-import UserPermissions from '../components/UserPermissions'
+import { z } from 'zod'
+import { DeleteUserModal, UserModel } from "../../components/ConfirmDelete"
+import EditUserModal from '../../components/EditUserModal'
+import UserPermissions from '../../components/UserPermissions'
 import './dash.css'
-import { Cog, UserCog } from 'lucide-react'
-import EditUserModal from '../components/EditUserModal'
-import api from '@/axios-config'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -29,7 +26,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 type Item = UserModel;
 
-export default function SignUpPage() {
+export default function UsersPage() {
 
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
@@ -49,7 +46,7 @@ export default function SignUpPage() {
   const atualizaTableUsers = () => {
     axios({
       method: "get",
-      url: "http://localhost:3002/users",
+      url: "http://localhost:3005/users",
     }).then((response) => {
       setItems(response.data)
     }).catch((error) => {
@@ -92,17 +89,6 @@ export default function SignUpPage() {
       setItems((prev) => prev.filter((i) => i.id !== selectedItem.id))
     }
   }
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    Cookies.remove('token')
-    router.push('/')
-  }
-
-  const createUser = () => {
-    setIsCreatingUser(true);
-  }
-
   const showPermissions = (userId: number) => {
     setUser(userId);
     setIsPermissionUser(true);
@@ -136,11 +122,9 @@ export default function SignUpPage() {
 
   return (
     <div className="logout flex column justify-center items-center h-screen">
-      <Code size="lg" variant="solid" colorPalette="purple">Dashboard ()</Code>
-      <Button onClick={createUser}>
-        criar usuário
-      </Button>
+        <Code className='cursor-pointer mb-2 p-1.5' onClick={() => router.back()}>← voltar</Code>
       <div className='w-1/2'>
+        
         <Table.Root size="lg" variant="outline" rounded="md">
           <Table.Header>
             <Table.Row >
@@ -171,10 +155,6 @@ export default function SignUpPage() {
         </Table.Root>
       </div>
 
-      <Button type="submit" onClick={logout}>
-        Logout
-      </Button>
-
       {isPermissionUser && (
         <UserPermissions
           isOpenModal={isPermissionUser}
@@ -182,15 +162,7 @@ export default function SignUpPage() {
           onClose={closeEditPermissionsModal}
         />
       )}
-
-      {isCreatingUser && (
-        <CreateUser
-          isOpenModal={isCreatingUser}
-          onClose={closeCreateModal}
-          atualizaTableUsers={atualizaTableUsers} />
-      )
-      }
-
+      
       {selectedItem && (
         <DeleteUserModal
           user={selectedItem}
@@ -209,7 +181,7 @@ export default function SignUpPage() {
           atualizaTableUsers={atualizaTableUsers}
         />
       )}
-      {/* <ToastContainer /> */}
+      <ToastContainer />
 
 
     </div>

@@ -16,6 +16,7 @@ export default function UserPermissions({ userId, onClose, isOpenModal }: UserPe
     const [permVisualizar, setPermVisualizar] = useState(false);
     const [permEditar, setPermEditar] = useState(false);
     const [permTotal, setPermTotal] = useState(false);
+    const permissions = JSON.parse(localStorage.getItem('permissions') || '{}');
 
     useEffect(() => {
         if (permVisualizar && permEditar) {
@@ -32,6 +33,8 @@ export default function UserPermissions({ userId, onClose, isOpenModal }: UserPe
             setPermEditar(false);
         }
     }, [permTotal]);
+
+    
 
     const savePermissions = async () => {
         if (!userId) {

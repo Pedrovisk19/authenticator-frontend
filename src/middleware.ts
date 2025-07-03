@@ -7,11 +7,12 @@ export function middleware(request: NextRequest) {
 
   const privatePrefixes = ['/dashboard', '/admin', '/conta']; // 🔐 pastas protegidas
   const isPrivateRoute = privatePrefixes.some(prefix => path.startsWith(prefix));
-  const isAuthRoute = ['/', '/signup', '/reset-password', 'new-password-reset'].includes(path); // rotas públicas
+  const isAuthRoute = ['/login', '/signup', '/reset-password', 'new-password-reset'].includes(path); // rotas públicas
 
+  console.log(`Token: ${token}, Rota: ${path}, Privada: ${isPrivateRoute}, Pública: ${isAuthRoute}`);
   // 🔒 Bloqueia acesso às privadas sem token
   if (!token && isPrivateRoute) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // 🔁 Se logado, não deixa acessar rotas públicas como login ou signup
