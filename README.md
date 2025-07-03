@@ -59,7 +59,7 @@ A aplicação protege as páginas que começam com `/dashboard`, permitindo aces
 
 ```ts
 // middleware.ts (resumo)
-if (!token && rota protegida) redireciona para '/'
+if (!token && rota protegida) redireciona para '/login'
 if (token e rota pública) redireciona para '/dashboard'
 ```
 
@@ -80,10 +80,10 @@ if (token e rota pública) redireciona para '/dashboard'
 
 ## 🧪 Futuras Melhorias
 
-- Recuperação de senha
-- Confirmação por e-mail
-- Notificações em tempo real (WebSocket)
-- Painel de permissões por papel (admin, user)
+- Recuperação de senha [x]
+- Confirmação por e-mail [x]
+- Notificações em tempo real (WebSocket) []
+- Painel de permissões por papel (admin, user) []
 
 ---
 
@@ -92,6 +92,10 @@ if (token e rota pública) redireciona para '/dashboard'
 Este projeto consome uma API REST feita com **NestJS**, que cuida da autenticação (JWT), criação de usuários e regras de segurança. O código backend está em outro repositório.
 
 ---
+
+## Objetivo do projeto 
+
+Foco em autenticação e controle de rotas, o restante das funcionalidades não foram desenvolvidas 100%, pois não era o foco! 
 
 ## 📄 Licença
 
